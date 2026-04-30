@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LLM RAG Starter — Jessica Graf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0b0f; --surface: #13131a; --surface2: #16161f;
+      --border: #1f1f2e; --accent: #c084fc; --accent2: #38bdf8;
+      --accent3: #34d399; --text: #e8e8f0; --muted: #6b6b82;
+      --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 15px; line-height: 1.7; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(56,189,248,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(56,189,248,0.025) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2.5rem; background: rgba(11,11,15,0.88); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--accent); letter-spacing: -0.02em; text-decoration: none; }
+    .nav-back { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-back:hover { color: var(--accent2); }
+    .nav-back::before { content: '←'; }
+
+    .hero { position: relative; padding: 10rem 2.5rem 5rem; max-width: 1140px; margin: 0 auto; }
+    .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(56,189,248,0.08) 0%, transparent 70%); top: 50%; right: -80px; transform: translateY(-50%); pointer-events: none; }
+
+    .project-type { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent2); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; animation: fadeUp 0.6s ease both; }
+    .project-type::before { content: ''; display: block; width: 2rem; height: 1px; background: var(--accent2); }
+
+    h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 6.5vw, 5.5rem); font-weight: 800; line-height: 0.93; letter-spacing: -0.035em; margin-bottom: 1.75rem; animation: fadeUp 0.6s 0.1s ease both; }
+    h1 span { background: linear-gradient(135deg, var(--accent2) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .hero-desc { max-width: 620px; color: var(--muted); font-size: 0.95rem; line-height: 1.85; margin-bottom: 2.5rem; animation: fadeUp 0.6s 0.2s ease both; }
+
+    .hero-meta { display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); width: fit-content; margin-bottom: 2.5rem; animation: fadeUp 0.6s 0.3s ease both; flex-wrap: wrap; }
+    .meta-cell { background: var(--surface); padding: 0.85rem 1.5rem; display: flex; flex-direction: column; gap: 0.2rem; }
+    .meta-label { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+    .meta-value { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; color: var(--text); }
+
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeUp 0.6s 0.4s ease both; }
+    .btn { padding: 0.75rem 1.75rem; border-radius: 3px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; }
+    .btn-primary { background: var(--accent2); color: #0b0b0f; font-weight: 500; border: 1px solid var(--accent2); }
+    .btn-primary:hover { background: transparent; color: var(--accent2); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .page-content { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 0 2.5rem 6rem; }
+    .content-grid { display: grid; grid-template-columns: 1fr 300px; gap: 4rem; align-items: start; }
+
+    .section-label { font-size: 0.68rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent2); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    h2 { font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.025em; margin-bottom: 1.5rem; }
+
+    .overview-text { color: var(--muted); font-size: 0.9rem; line-height: 1.9; margin-bottom: 1.25rem; }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 3.5rem 0; }
+
+    /* ARCHITECTURE FLOW */
+    .arch-flow { display: flex; align-items: center; gap: 0; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .arch-step { background: var(--surface); border: 1px solid var(--border); padding: 1rem 1.25rem; flex: 1; min-width: 100px; border-left: none; text-align: center; transition: background 0.2s; }
+    .arch-step:first-child { border-left: 1px solid var(--border); border-radius: 2px 0 0 2px; }
+    .arch-step:last-child { border-radius: 0 2px 2px 0; }
+    .arch-step:hover { background: var(--surface2); }
+    .arch-step-icon { font-size: 1.3rem; display: block; margin-bottom: 0.35rem; }
+    .arch-step-name { font-family: var(--font-display); font-size: 0.78rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.2rem; }
+    .arch-step-desc { font-size: 0.68rem; color: var(--muted); line-height: 1.4; }
+    .arch-arrow { color: var(--muted); font-size: 1rem; padding: 0 0.1rem; flex-shrink: 0; }
+
+    /* CODE BLOCK */
+    .code-section { margin-bottom: 4rem; }
+    .code-block { background: #0d0d14; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.65rem 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface); }
+    .code-label { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+    .code-dots { display: flex; gap: 0.4rem; }
+    .code-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+    pre { padding: 1.5rem; font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.7; color: var(--text); overflow-x: auto; }
+    .cmd { color: var(--accent3); }
+    .comment { color: var(--muted); font-style: italic; }
+    .flag { color: var(--accent2); }
+    .str { color: var(--accent); }
+
+    /* FEATURES */
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 4rem; }
+    .feature-card { background: var(--surface); padding: 1.5rem; transition: background 0.2s; }
+    .feature-card:hover { background: var(--surface2); }
+    .feature-icon { font-size: 1.2rem; margin-bottom: 0.6rem; display: block; }
+    .feature-title { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text); }
+    .feature-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.65; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 6rem; }
+    .sidebar-card { background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; margin-bottom: 1.5rem; }
+    .sidebar-title { font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent2); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+    .tech-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+    .tech-item { display: flex; align-items: flex-start; gap: 0.85rem; }
+    .tech-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 0.45rem; }
+    .d1 { background: var(--accent2); } .d2 { background: var(--accent); } .d3 { background: var(--accent3); } .d4 { background: #fb923c; } .d5 { background: #f472b6; }
+    .tech-name { font-size: 0.83rem; color: var(--text); flex: 1; line-height: 1.4; }
+    .tech-role { font-size: 0.67rem; color: var(--muted); display: block; margin-top: 0.1rem; }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag { font-size: 0.68rem; padding: 0.2rem 0.6rem; background: rgba(56,189,248,0.07); border: 1px solid rgba(56,189,248,0.14); color: var(--muted); border-radius: 2px; }
+    .sidebar-cta { background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; text-align: center; position: relative; overflow: hidden; }
+    .sidebar-cta::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent2), var(--accent)); }
+    .sidebar-cta p { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.6; }
+    .btn-full { display: block; text-align: center; margin-bottom: 0.75rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 0.72rem; position: relative; z-index: 1; flex-wrap: wrap; gap: 1rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent2); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } .sidebar { position: static; } .features-grid { grid-template-columns: 1fr; } .arch-flow { flex-direction: column; } .arch-step { border-left: 1px solid var(--border) !important; border-top: none; width: 100%; } .arch-arrow { transform: rotate(90deg); } }
+    @media (max-width: 640px) { nav { padding: 1rem 1.25rem; } .hero { padding: 8rem 1.25rem 3rem; } .page-content { padding: 0 1.25rem 4rem; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">JG.</a>
+    <a href="index.html#projects" class="nav-back">Back to Portfolio</a>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <p class="project-type">Open Source · RAG / LLM Engineering</p>
+    <h1>LLM<br /><span>RAG Starter</span></h1>
+    <p class="hero-desc">
+      A minimal, production-capable Retrieval-Augmented Generation system built from scratch. Ingest PDFs and text into a local vector store, ask questions, get grounded answers with citations — via Streamlit UI or FastAPI. Runs fully offline with deterministic demo embeddings, or with OpenAI for production quality.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-cell">
+        <span class="meta-label">Language</span>
+        <span class="meta-value">Python</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Interfaces</span>
+        <span class="meta-value">Streamlit + FastAPI</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Type</span>
+        <span class="meta-value">Open Source</span>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <a href="https://github.com/Jgraf30/llm-rag-starter" target="_blank" class="btn btn-primary">View on GitHub →</a>
+      <a href="index.html#contact" class="btn btn-ghost">Discuss This Project</a>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="content-grid">
+
+      <div class="main-col">
+
+        <div class="reveal">
+          <p class="section-label">Overview</p>
+          <h2>What It Does</h2>
+          <p class="overview-text">
+            Most RAG tutorials give you a notebook that calls an API and calls it done. This is the other thing — a complete, self-contained system you can actually run, extend, and deploy. It handles the full pipeline: document ingestion, chunking, embedding, vector storage, retrieval, context injection, and grounded response generation with citations back to the source material.
+          </p>
+          <p class="overview-text">
+            The "no API key required" design matters. Deterministic demo embeddings let you develop, test, and demo the full system without touching OpenAI — then swap in real embeddings for production quality with a single environment variable. Two interfaces are included out of the box: a FastAPI backend for programmatic access and a Streamlit UI for interactive Q&A.
+          </p>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="reveal" style="margin-bottom:4rem;">
+          <p class="section-label">Architecture</p>
+          <h2>How the Pipeline Works</h2>
+          <div class="arch-flow">
+            <div class="arch-step">
+              <span class="arch-step-icon">📄</span>
+              <div class="arch-step-name">Ingest</div>
+              <div class="arch-step-desc">PDF &amp; TXT files loaded from /data</div>
+            </div>
+            <div class="arch-arrow">›</div>
+            <div class="arch-step">
+              <span class="arch-step-icon">✂️</span>
+              <div class="arch-step-name">Chunk</div>
+              <div class="arch-step-desc">Documents split into overlapping chunks</div>
+            </div>
+            <div class="arch-arrow">›</div>
+            <div class="arch-step">
+              <span class="arch-step-icon">🔢</span>
+              <div class="arch-step-name">Embed</div>
+              <div class="arch-step-desc">Demo or OpenAI embeddings generated</div>
+            </div>
+            <div class="arch-arrow">›</div>
+            <div class="arch-step">
+              <span class="arch-step-icon">🗄️</span>
+              <div class="arch-step-name">Store</div>
+              <div class="arch-step-desc">Vectors written to local vector store</div>
+            </div>
+            <div class="arch-arrow">›</div>
+            <div class="arch-step">
+              <span class="arch-step-icon">🔍</span>
+              <div class="arch-step-name">Retrieve</div>
+              <div class="arch-step-desc">Similarity search on query embedding</div>
+            </div>
+            <div class="arch-arrow">›</div>
+            <div class="arch-step">
+              <span class="arch-step-icon">💬</span>
+              <div class="arch-step-name">Answer</div>
+              <div class="arch-step-desc">Grounded response with citations</div>
+            </div>
+          </div>
+          <p style="font-size:0.78rem; color:var(--muted); line-height:1.7;">Every step is explicit and inspectable. No black-box SDK abstractions — you can see exactly where documents go and how answers get built.</p>
+        </div>
+
+        <hr class="section-divider" />
+
+        <!-- QUICK START -->
+        <div class="code-section reveal">
+          <p class="section-label">Quick Start</p>
+          <h2>Get Running in 5 Steps</h2>
+          <div class="code-block">
+            <div class="code-header">
+              <div class="code-dots"><div class="code-dot dot-r"></div><div class="code-dot dot-y"></div><div class="code-dot dot-g"></div></div>
+              <span class="code-label">bash</span>
+            </div>
+            <pre><span class="comment"># 1) Create and activate virtual environment</span>
+<span class="cmd">python</span> <span class="flag">-m</span> venv .venv && . .venv/bin/activate
+<span class="cmd">pip</span> install <span class="flag">-r</span> requirements.txt
+
+<span class="comment"># Optional: plug in OpenAI for production-quality answers</span>
+<span class="comment"># export OPENAI_API_KEY=sk-...</span>
+
+<span class="comment"># 2) Drop your PDFs or TXT files into ./data</span>
+<span class="cmd">mkdir</span> <span class="flag">-p</span> data && cp your.pdf data/
+
+<span class="comment"># 3) Build the vector store</span>
+<span class="cmd">python</span> rag.py ingest <span class="flag">--data</span> data <span class="flag">--store</span> store
+
+<span class="comment"># 4) Ask a question from the CLI</span>
+<span class="cmd">python</span> rag.py ask <span class="flag">--store</span> store <span class="flag">--q</span> <span class="str">"What is the main finding?"</span>
+
+<span class="comment"># 5a) Or run the REST API</span>
+<span class="cmd">uvicorn</span> app:app <span class="flag">--reload</span>
+
+<span class="comment"># 5b) Or launch the Streamlit UI</span>
+<span class="cmd">streamlit</span> run ui.py</pre>
+          </div>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="reveal">
+          <p class="section-label">Capabilities</p>
+          <h2>Key Features</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <span class="feature-icon">📦</span>
+              <div class="feature-title">Zero API Key Required</div>
+              <div class="feature-desc">Deterministic demo embeddings let you run the full pipeline locally — no OpenAI account, no costs, no rate limits during development.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🔌</span>
+              <div class="feature-title">OpenAI Drop-In</div>
+              <div class="feature-desc">Set one environment variable and the system switches to real OpenAI embeddings and completions. Same code, production-quality output.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🖥️</span>
+              <div class="feature-title">Streamlit UI</div>
+              <div class="feature-desc">Interactive document Q&A interface — upload docs, ask questions, read answers with inline citations. No frontend code required.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">⚡</span>
+              <div class="feature-title">FastAPI Backend</div>
+              <div class="feature-desc">REST API for programmatic access — ingest endpoints, query endpoints, JSON responses. Integrate with any downstream system.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">📎</span>
+              <div class="feature-title">Grounded Citations</div>
+              <div class="feature-desc">Every answer includes citations back to the source chunks — no hallucinations about where the answer came from.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🧩</span>
+              <div class="feature-title">Fully Self-Contained</div>
+              <div class="feature-desc">Local vector store, no external database required. Clone, install, run. The entire system fits in one repo with no managed services needed.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="sidebar">
+
+        <div class="sidebar-card reveal">
+          <div class="sidebar-title">Tech Stack</div>
+          <div class="tech-stack">
+            <div class="tech-item">
+              <div class="tech-dot d1"></div>
+              <div><span class="tech-name">Python</span><span class="tech-role">Core language</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot d2"></div>
+              <div><span class="tech-name">FastAPI</span><span class="tech-role">REST API backend</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot d3"></div>
+              <div><span class="tech-name">Streamlit</span><span class="tech-role">Interactive UI</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot d4"></div>
+              <div><span class="tech-name">OpenAI API</span><span class="tech-role">Optional — production embeddings &amp; completions</span></div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot d5"></div>
+              <div><span class="tech-name">Local Vector Store</span><span class="tech-role">Embedding storage &amp; similarity search</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card reveal">
+          <div class="sidebar-title">Skills Demonstrated</div>
+          <div class="tag-cloud">
+            <span class="tag">RAG Architecture</span>
+            <span class="tag">Vector Stores</span>
+            <span class="tag">Embeddings</span>
+            <span class="tag">FastAPI</span>
+            <span class="tag">Streamlit</span>
+            <span class="tag">OpenAI API</span>
+            <span class="tag">Python</span>
+            <span class="tag">Document Chunking</span>
+            <span class="tag">Similarity Search</span>
+            <span class="tag">Citation Grounding</span>
+            <span class="tag">Open Source</span>
+          </div>
+        </div>
+
+        <div class="sidebar-cta reveal">
+          <p>Want to discuss applying RAG patterns to an enterprise M365 or AI use case?</p>
+          <a href="https://github.com/Jgraf30/llm-rag-starter" target="_blank" class="btn btn-primary btn-full">View Source on GitHub</a>
+          <a href="index.html#contact" class="btn btn-ghost btn-full">Get In Touch</a>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+  <footer>
+    <span>© 2025 Jessica Graf · Austin, TX</span>
+    <div class="footer-links">
+      <a href="index.html">Portfolio</a>
+      <a href="https://www.linkedin.com/in/jessicagraf" target="_blank">LinkedIn</a>
+      <a href="https://github.com/Jgraf30/llm-rag-starter" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
+      { threshold: 0.08 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
