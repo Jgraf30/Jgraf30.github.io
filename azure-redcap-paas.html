@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Azure REDCap PaaS — Jessica Graf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0b0b0f; --surface: #13131a; --surface2: #16161f;
+      --border: #1f1f2e; --accent: #c084fc; --accent2: #38bdf8;
+      --accent3: #34d399; --accent4: #fb923c;
+      --text: #e8e8f0; --muted: #6b6b82;
+      --font-display: 'Syne', sans-serif; --font-mono: 'DM Mono', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--font-mono); font-size: 15px; line-height: 1.7; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events: none; z-index: 1000; opacity: 0.4; }
+    body::after { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(251,146,60,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(251,146,60,0.025) 1px, transparent 1px); background-size: 60px 60px; pointer-events: none; z-index: 0; }
+
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.2rem 2.5rem; background: rgba(11,11,15,0.88); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+    .nav-logo { font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; color: var(--accent); letter-spacing: -0.02em; text-decoration: none; }
+    .nav-back { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.2s; }
+    .nav-back:hover { color: var(--accent4); }
+    .nav-back::before { content: '←'; }
+
+    .hero { position: relative; padding: 10rem 2.5rem 5rem; max-width: 1140px; margin: 0 auto; overflow: hidden; }
+    .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(251,146,60,0.07) 0%, transparent 70%); top: 50%; right: -80px; transform: translateY(-50%); pointer-events: none; }
+
+    .project-type { font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent4); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.75rem; animation: fadeUp 0.6s ease both; }
+    .project-type::before { content: ''; display: block; width: 2rem; height: 1px; background: var(--accent4); }
+
+    h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 6.5vw, 5.5rem); font-weight: 800; line-height: 0.93; letter-spacing: -0.035em; margin-bottom: 1.75rem; animation: fadeUp 0.6s 0.1s ease both; }
+    h1 span { background: linear-gradient(135deg, var(--accent4) 0%, var(--accent2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+    .hero-desc { max-width: 620px; color: var(--muted); font-size: 0.95rem; line-height: 1.85; margin-bottom: 2.5rem; animation: fadeUp 0.6s 0.2s ease both; }
+
+    .hero-meta { display: flex; gap: 1px; background: var(--border); border: 1px solid var(--border); width: fit-content; margin-bottom: 2.5rem; animation: fadeUp 0.6s 0.3s ease both; flex-wrap: wrap; }
+    .meta-cell { background: var(--surface); padding: 0.85rem 1.5rem; display: flex; flex-direction: column; gap: 0.2rem; }
+    .meta-label { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+    .meta-value { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; color: var(--text); }
+
+    .hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; animation: fadeUp 0.6s 0.4s ease both; }
+    .btn { padding: 0.75rem 1.75rem; border-radius: 3px; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .btn-primary { background: var(--accent4); color: #0b0b0f; font-weight: 500; border: 1px solid var(--accent4); }
+    .btn-primary:hover { background: transparent; color: var(--accent4); }
+    .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .page-content { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 0 2.5rem 6rem; }
+    .content-grid { display: grid; grid-template-columns: 1fr 320px; gap: 4rem; align-items: start; }
+
+    .section-label { font-size: 0.68rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--accent4); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.75rem; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    h2 { font-family: var(--font-display); font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.025em; margin-bottom: 1.5rem; }
+
+    .overview-text { color: var(--muted); font-size: 0.9rem; line-height: 1.9; margin-bottom: 1.25rem; }
+    .section-divider { border: none; border-top: 1px solid var(--border); margin: 3.5rem 0; }
+
+    /* ARCHITECTURE DIAGRAM */
+    .arch-section { margin-bottom: 4rem; }
+    .arch-diagram { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); margin-bottom: 1rem; }
+    .arch-layer { background: var(--surface); padding: 1.5rem; border-top: 2px solid transparent; transition: background 0.2s, border-color 0.2s; }
+    .arch-layer:hover { background: var(--surface2); }
+    .arch-layer.hub { border-top-color: var(--accent4); }
+    .arch-layer.spoke { border-top-color: var(--accent2); }
+    .arch-layer.security { border-top-color: var(--accent3); }
+    .arch-layer-label { font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+    .arch-layer-title { font-family: var(--font-display); font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; }
+    .arch-layer.hub .arch-layer-title { color: var(--accent4); }
+    .arch-layer.spoke .arch-layer-title { color: var(--accent2); }
+    .arch-layer.security .arch-layer-title { color: var(--accent3); }
+    .arch-services { display: flex; flex-direction: column; gap: 0.35rem; }
+    .arch-service { font-size: 0.75rem; color: var(--muted); padding-left: 0.75rem; position: relative; }
+    .arch-service::before { content: '·'; position: absolute; left: 0; color: var(--muted); }
+
+    /* FEATURES */
+    .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); }
+    .feature-card { background: var(--surface); padding: 1.5rem; transition: background 0.2s; }
+    .feature-card:hover { background: var(--surface2); }
+    .feature-icon { font-size: 1.2rem; margin-bottom: 0.6rem; display: block; }
+    .feature-title { font-family: var(--font-display); font-size: 0.9rem; font-weight: 700; margin-bottom: 0.35rem; color: var(--text); }
+    .feature-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.65; }
+
+    /* SIDEBAR */
+    .sidebar { position: sticky; top: 6rem; }
+    .sidebar-card { background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; margin-bottom: 1.5rem; }
+    .sidebar-title { font-family: var(--font-display); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent4); margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--border); }
+
+    .tech-stack { display: flex; flex-direction: column; gap: 0.85rem; }
+    .tech-item { display: flex; align-items: flex-start; gap: 0.85rem; }
+    .tech-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 0.5rem; }
+    .dot-arm { background: var(--accent4); }
+    .dot-tf  { background: var(--accent); }
+    .dot-ans { background: var(--accent2); }
+    .dot-az  { background: var(--accent3); }
+    .dot-sg  { background: #f472b6; }
+    .tech-name { font-size: 0.83rem; color: var(--text); flex: 1; line-height: 1.4; }
+    .tech-role { font-size: 0.67rem; color: var(--muted); display: block; margin-top: 0.1rem; }
+
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag { font-size: 0.68rem; padding: 0.2rem 0.6rem; background: rgba(251,146,60,0.07); border: 1px solid rgba(251,146,60,0.14); color: var(--muted); border-radius: 2px; letter-spacing: 0.04em; }
+
+    .sidebar-cta { background: var(--surface); border: 1px solid var(--border); padding: 1.75rem; text-align: center; position: relative; overflow: hidden; }
+    .sidebar-cta::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent4), var(--accent2)); }
+    .sidebar-cta p { font-size: 0.8rem; color: var(--muted); margin-bottom: 1.25rem; line-height: 1.6; }
+    .btn-full { display: block; text-align: center; margin-bottom: 0.75rem; }
+
+    footer { border-top: 1px solid var(--border); padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 0.72rem; letter-spacing: 0.06em; position: relative; z-index: 1; flex-wrap: wrap; gap: 1rem; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent4); }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    @media (max-width: 900px) { .content-grid { grid-template-columns: 1fr; } .sidebar { position: static; } .features-grid { grid-template-columns: 1fr; } .arch-diagram { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { nav { padding: 1rem 1.25rem; } .hero { padding: 8rem 1.25rem 3rem; } .page-content { padding: 0 1.25rem 4rem; } }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">JG.</a>
+    <a href="index.html#projects" class="nav-back">Back to Portfolio</a>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-glow"></div>
+    <p class="project-type">Azure Infrastructure / IaC Project</p>
+    <h1>Azure REDCap<br /><span>PaaS Deployment</span></h1>
+    <p class="hero-desc">
+      Automated deployment of REDCap (Research Electronic Data Capture) on Azure using ARM Templates and Terraform — production-ready, secure, scalable infrastructure delivered as code. Hub/spoke architecture with private endpoints and enterprise-grade backup and recovery built in from day one.
+    </p>
+    <div class="hero-meta">
+      <div class="meta-cell">
+        <span class="meta-label">IaC Tools</span>
+        <span class="meta-value">ARM + Terraform</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Platform</span>
+        <span class="meta-value">Microsoft Azure</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Type</span>
+        <span class="meta-value">Open Source</span>
+      </div>
+    </div>
+    <div class="hero-cta">
+      <a href="https://github.com/Jgraf30/azure-redcap-paas" target="_blank" class="btn btn-primary">View on GitHub →</a>
+      <a href="index.html#contact" class="btn btn-ghost">Discuss This Project</a>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div class="content-grid">
+
+      <div class="main-col">
+
+        <div class="reveal">
+          <p class="section-label">Overview</p>
+          <h2>What It Does</h2>
+          <p class="overview-text">
+            REDCap is a widely used research data capture platform in healthcare and academic environments — but standing it up securely on Azure at enterprise scale requires infrastructure that's both locked down and repeatable. This project solves that with two deployment paths: ARM Templates for one-click provisioning and Terraform for teams that need full IaC lifecycle management and reusable module patterns.
+          </p>
+          <p class="overview-text">
+            The architecture goes beyond a basic PaaS lift — it implements private endpoints, hub/spoke network topology, Key Vault integration for secrets management, and Ansible automation for workstation configuration. The result is a deployment you can hand to a regulated research or healthcare organization and trust it meets enterprise security and compliance requirements out of the box.
+          </p>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="arch-section reveal">
+          <p class="section-label">Architecture</p>
+          <h2>Hub / Spoke Design</h2>
+          <div class="arch-diagram">
+            <div class="arch-layer hub">
+              <div class="arch-layer-label">Network Layer</div>
+              <div class="arch-layer-title">Hub / Spoke VNet</div>
+              <div class="arch-services">
+                <div class="arch-service">Virtual Network</div>
+                <div class="arch-service">Private Endpoints</div>
+                <div class="arch-service">Network Security Groups</div>
+                <div class="arch-service">Windows Virtual Desktop</div>
+              </div>
+            </div>
+            <div class="arch-layer spoke">
+              <div class="arch-layer-label">Application Layer</div>
+              <div class="arch-layer-title">PaaS Services</div>
+              <div class="arch-services">
+                <div class="arch-service">App Service (REDCap)</div>
+                <div class="arch-service">Azure MySQL Database</div>
+                <div class="arch-service">Storage Account</div>
+                <div class="arch-service">SendGrid (Email)</div>
+              </div>
+            </div>
+            <div class="arch-layer security">
+              <div class="arch-layer-label">Security &amp; Ops</div>
+              <div class="arch-layer-title">Governance Controls</div>
+              <div class="arch-services">
+                <div class="arch-service">Azure Key Vault</div>
+                <div class="arch-service">Managed Identity</div>
+                <div class="arch-service">Backup &amp; Recovery</div>
+                <div class="arch-service">Ansible Automation</div>
+              </div>
+            </div>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--muted); line-height: 1.7;">Hub/spoke topology isolates workloads while enabling centralized network control. Private endpoints ensure all PaaS traffic stays on the Microsoft backbone — no public internet exposure for the database, storage, or Key Vault.</p>
+        </div>
+
+        <hr class="section-divider" />
+
+        <div class="reveal" style="margin-bottom: 4rem;">
+          <p class="section-label">Capabilities</p>
+          <h2>Key Features</h2>
+          <div class="features-grid">
+            <div class="feature-card">
+              <span class="feature-icon">🚀</span>
+              <div class="feature-title">One-Click Deployment</div>
+              <div class="feature-desc">ARM template deploys the full environment in a single operation — zero manual steps, fully parameterized for environment-specific configuration.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🏗️</span>
+              <div class="feature-title">Infrastructure as Code</div>
+              <div class="feature-desc">Terraform configurations provide full IaC lifecycle management — plan, apply, destroy — with reusable modules for multi-environment deployments.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🔒</span>
+              <div class="feature-title">Private Endpoint Security</div>
+              <div class="feature-desc">All PaaS resources accessed via private endpoints — database, storage, and Key Vault traffic never leaves the Azure backbone.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">🕸️</span>
+              <div class="feature-title">Hub/Spoke Architecture</div>
+              <div class="feature-desc">Enterprise network topology with workload isolation, centralized connectivity control, and support for multi-spoke scaling.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">⚙️</span>
+              <div class="feature-title">Ansible Workstation Automation</div>
+              <div class="feature-desc">Ansible playbooks automate workstation configuration and setup — consistent, repeatable environment provisioning beyond just the cloud infrastructure.</div>
+            </div>
+            <div class="feature-card">
+              <span class="feature-icon">💾</span>
+              <div class="feature-title">Backup &amp; Recovery</div>
+              <div class="feature-desc">Built-in backup and recovery configuration for the database and application layer — enterprise data protection without manual configuration.</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="sidebar">
+
+        <div class="sidebar-card reveal">
+          <div class="sidebar-title">Tech Stack</div>
+          <div class="tech-stack">
+            <div class="tech-item">
+              <div class="tech-dot dot-arm"></div>
+              <div>
+                <span class="tech-name">ARM Templates</span>
+                <span class="tech-role">One-click Azure deployment</span>
+              </div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot dot-tf"></div>
+              <div>
+                <span class="tech-name">Terraform</span>
+                <span class="tech-role">IaC lifecycle management</span>
+              </div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot dot-ans"></div>
+              <div>
+                <span class="tech-name">Ansible</span>
+                <span class="tech-role">Configuration management</span>
+              </div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot dot-az"></div>
+              <div>
+                <span class="tech-name">Azure PaaS</span>
+                <span class="tech-role">App Service, MySQL, Storage, Key Vault, VNet, WVD</span>
+              </div>
+            </div>
+            <div class="tech-item">
+              <div class="tech-dot dot-sg"></div>
+              <div>
+                <span class="tech-name">SendGrid</span>
+                <span class="tech-role">Email integration (optional)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-card reveal">
+          <div class="sidebar-title">Skills Demonstrated</div>
+          <div class="tag-cloud">
+            <span class="tag">ARM Templates</span>
+            <span class="tag">Terraform</span>
+            <span class="tag">Ansible</span>
+            <span class="tag">Azure Networking</span>
+            <span class="tag">Private Endpoints</span>
+            <span class="tag">Key Vault</span>
+            <span class="tag">PaaS Architecture</span>
+            <span class="tag">Hub/Spoke</span>
+            <span class="tag">IaC</span>
+            <span class="tag">Backup &amp; Recovery</span>
+            <span class="tag">Security Controls</span>
+          </div>
+        </div>
+
+        <div class="sidebar-cta reveal">
+          <p>Need a secure, repeatable Azure deployment pattern for a research or healthcare workload?</p>
+          <a href="https://github.com/Jgraf30/azure-redcap-paas" target="_blank" class="btn btn-primary btn-full">View Source on GitHub</a>
+          <a href="index.html#contact" class="btn btn-ghost btn-full">Get In Touch</a>
+        </div>
+
+      </aside>
+    </div>
+  </div>
+
+  <footer>
+    <span>© 2025 Jessica Graf · Austin, TX</span>
+    <div class="footer-links">
+      <a href="index.html">Portfolio</a>
+      <a href="https://www.linkedin.com/in/jessicagraf" target="_blank">LinkedIn</a>
+      <a href="https://github.com/Jgraf30/azure-redcap-paas" target="_blank">GitHub</a>
+    </div>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => e.isIntersecting && e.target.classList.add('visible')),
+      { threshold: 0.08 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
