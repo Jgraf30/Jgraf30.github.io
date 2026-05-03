@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Alerts — AI-Powered SharePoint Alert Replacement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Space+Grotesk:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090f;
+  --surface: #0f1120;
+  --surface2: #161929;
+  --border: rgba(255,255,255,0.07);
+  --border-bright: rgba(255,255,255,0.14);
+  --purple: #7c3aed;
+  --purple-light: #a78bfa;
+  --cyan: #06b6d4;
+  --cyan-light: #67e8f9;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --text: #e8eaf0;
+  --text-sec: #8892a4;
+  --text-muted: #4a5568;
+  --font-display: 'Unbounded', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* Grid pattern background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Glow orbs */
+body::after {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 600px;
+  background: radial-gradient(ellipse at center, rgba(124,58,237,0.12) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,9,15,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--purple-light);
+  text-decoration: none;
+}
+.nav-links {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  font-size: 13px;
+  color: var(--text-sec);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--amber);
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 100px;
+  padding: 4px 12px;
+}
+.nav-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+section { position: relative; z-index: 1; }
+
+/* Hero */
+.hero {
+  padding: 100px 40px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+.tag-purple { background: rgba(124,58,237,0.15); color: var(--purple-light); border: 1px solid rgba(124,58,237,0.3); }
+.tag-cyan { background: rgba(6,182,212,0.1); color: var(--cyan-light); border: 1px solid rgba(6,182,212,0.25); }
+.tag-amber { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.tag-green { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 7vw, 88px);
+  font-weight: 900;
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.hero-title .line1 { color: var(--text); display: block; }
+.hero-title .line2 {
+  display: block;
+  background: linear-gradient(90deg, var(--purple-light), var(--cyan-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle {
+  font-size: 18px;
+  color: var(--text-sec);
+  font-weight: 300;
+  max-width: 600px;
+  margin: 24px 0 40px;
+  line-height: 1.6;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: var(--purple);
+  color: #fff;
+}
+.btn-primary:hover { background: #6d28d9; transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-sec);
+  border: 1px solid var(--border-bright);
+}
+.btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04); }
+
+/* Tech stack pills */
+.stack-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 48px;
+  padding-top: 40px;
+  border-top: 1px solid var(--border);
+}
+.stack-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.stack-pill {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: var(--surface2);
+  color: var(--text-sec);
+  border: 1px solid var(--border);
+}
+
+/* Divider */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+/* Generic section layout */
+.section {
+  padding: 80px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.section-header {
+  margin-bottom: 48px;
+}
+.section-number {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--purple-light);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--text);
+}
+.section-desc {
+  font-size: 15px;
+  color: var(--text-sec);
+  max-width: 600px;
+  margin-top: 12px;
+  line-height: 1.65;
+}
+
+/* Problem / solution two-col */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.two-col-pane {
+  padding: 36px;
+  background: var(--surface);
+}
+.two-col-pane:first-child {
+  border-right: 1px solid var(--border);
+}
+.pane-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.pane-label.problem { color: var(--red); }
+.pane-label.solution { color: var(--green); }
+.pane-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pane-list li {
+  font-size: 14px;
+  color: var(--text-sec);
+  padding-left: 20px;
+  position: relative;
+  line-height: 1.5;
+}
+.pane-list.problem li::before {
+  content: '✕';
+  position: absolute;
+  left: 0;
+  color: var(--red);
+  font-size: 11px;
+  top: 3px;
+}
+.pane-list.solution li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--green);
+  font-size: 11px;
+  top: 3px;
+}
+
+/* Architecture grid */
+.arch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.arch-card {
+  background: var(--surface);
+  padding: 28px;
+  transition: background 0.2s;
+}
+.arch-card:hover { background: var(--surface2); }
+.arch-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+.arch-card-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.arch-card-desc {
+  font-size: 13px;
+  color: var(--text-sec);
+  line-height: 1.55;
+}
+.arch-card-tag {
+  display: inline-block;
+  margin-top: 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+/* Features */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.feature-card {
+  background: var(--surface);
+  padding: 32px;
+}
+.feature-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.feature-title {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.feature-desc {
+  font-size: 14px;
+  color: var(--text-sec);
+  line-height: 1.6;
+}
+
+/* Progress tracker */
+.progress-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.progress-header {
+  background: var(--surface);
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.progress-header-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.progress-bar {
+  width: 160px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 100px;
+  background: linear-gradient(90deg, var(--purple), var(--cyan));
+}
+.progress-pct {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--purple-light);
+  font-weight: 500;
+}
+.progress-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+.progress-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  transition: background 0.15s;
+}
+.progress-item:last-child { border-bottom: none; }
+.progress-item:hover { background: rgba(255,255,255,0.02); }
+.pi-check {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  margin-top: 2px;
+}
+.pi-check.done { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+.pi-check.inprogress { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.pi-check.planned { background: rgba(255,255,255,0.04); color: var(--text-muted); border: 1px solid var(--border); }
+.pi-text { color: var(--text-sec); line-height: 1.5; }
+.pi-text strong { color: var(--text); font-weight: 500; }
+.pi-status {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.pi-status.done { background: rgba(16,185,129,0.1); color: var(--green); }
+.pi-status.inprogress { background: rgba(245,158,11,0.1); color: var(--amber); }
+.pi-status.planned { background: rgba(255,255,255,0.04); color: var(--text-muted); }
+
+/* Prompts section */
+.prompt-preview {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.prompt-tab-bar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.ptab {
+  padding: 14px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  transition: color 0.15s;
+}
+.ptab.active { color: var(--purple-light); border-bottom-color: var(--purple-light); }
+.ptab:hover:not(.active) { color: var(--text-sec); }
+.prompt-body {
+  padding: 28px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-sec);
+  line-height: 1.8;
+  white-space: pre-wrap;
+  max-height: 340px;
+  overflow-y: auto;
+  display: none;
+}
+.prompt-body.active { display: block; }
+.prompt-body .kw-system { color: var(--purple-light); }
+.prompt-body .kw-var { color: var(--cyan-light); }
+.prompt-body .kw-key { color: var(--amber); }
+
+/* About */
+.about-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+}
+.about-avatar {
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 900;
+  color: #fff;
+}
+.about-name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.about-title {
+  font-size: 14px;
+  color: var(--purple-light);
+  margin-bottom: 12px;
+}
+.about-bio {
+  font-size: 14px;
+  color: var(--text-sec);
+  line-height: 1.65;
+  max-width: 580px;
+}
+.about-links {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.about-link {
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: var(--text-sec);
+  text-decoration: none;
+  padding: 6px 14px;
+  border: 1px solid var(--border-bright);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.about-link:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
+
+/* Footer */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 32px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.footer-left {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--purple-light);
+  letter-spacing: 0.05em;
+}
+.footer-right {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 60px 20px 50px; }
+  .section { padding: 60px 20px; }
+  .two-col, .arch-grid, .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .two-col-pane:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+  .arch-grid { background: var(--surface); }
+  .about-card { flex-direction: column; gap: 20px; }
+  footer { padding: 24px 20px; }
+  .progress-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="nav-brand">SMART ALERTS</a>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#progress">Progress</a></li>
+    <li><a href="#about">About</a></li>
+  </ul>
+  <div class="nav-badge">In Progress</div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="tag tag-amber">Work in Progress</span>
+    <span class="tag tag-purple">Power Platform</span>
+    <span class="tag tag-cyan">AI-Powered</span>
+  </div>
+  <h1 class="hero-title">
+    <span class="line1">Smart</span>
+    <span class="line2">Alerts</span>
+  </h1>
+  <p class="hero-subtitle">
+    A full replacement for SharePoint's native alert system — built on Power Apps, Power Automate, and AI Builder. Intelligent filtering, natural language subscriptions, and delivery to Teams and email.
+  </p>
+  <div class="hero-actions">
+    <a href="https://github.com/jessica-graf" class="btn btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      View on GitHub
+    </a>
+    <a href="#progress" class="btn btn-ghost">See build status</a>
+  </div>
+  <div class="stack-row">
+    <span class="stack-label">Built with</span>
+    <span class="stack-pill">Power Apps</span>
+    <span class="stack-pill">Power Automate</span>
+    <span class="stack-pill">AI Builder</span>
+    <span class="stack-pill">Dataverse</span>
+    <span class="stack-pill">SharePoint</span>
+    <span class="stack-pill">Teams</span>
+    <span class="stack-pill">Adaptive Cards</span>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- PROBLEM / SOLUTION -->
+<div id="problem" style="background: rgba(255,255,255,0.01);">
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">01 / Problem</div>
+    <h2 class="section-title">SharePoint Alerts<br>are going away</h2>
+    <p class="section-desc">Microsoft is phasing out native SharePoint alerts. Organizations relying on them need a replacement — one that actually improves on what they had.</p>
+  </div>
+  <div class="two-col">
+    <div class="two-col-pane">
+      <div class="pane-label problem">SharePoint native alerts</div>
+      <ul class="pane-list problem">
+        <li>Being deprecated — no long-term viability</li>
+        <li>No smart filtering — every change triggers a notification</li>
+        <li>Email only — no Teams integration</li>
+        <li>No digest mode — inbox floods on active lists</li>
+        <li>No visibility — admins can't see what alerts exist</li>
+        <li>Hard for users to manage — buried in list settings</li>
+        <li>No natural language — users must configure field-level rules manually</li>
+      </ul>
+    </div>
+    <div class="two-col-pane">
+      <div class="pane-label solution">Smart Alerts replaces all of this</div>
+      <ul class="pane-list solution">
+        <li>Built on Power Platform — fully supported, extensible</li>
+        <li>AI filters noise — only significant changes notify</li>
+        <li>Teams + email delivery with rich adaptive cards</li>
+        <li>Immediate or daily digest mode, per subscription</li>
+        <li>Admin dashboard — full visibility across the org</li>
+        <li>Self-service Power Apps UI — no list settings required</li>
+        <li>Natural language subscriptions — "alert me when a high-priority item is assigned to me"</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ARCHITECTURE -->
+<div id="architecture">
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">02 / Architecture</div>
+    <h2 class="section-title">How it's built</h2>
+    <p class="section-desc">Six components working together. SharePoint is the source of truth. AI Builder is the intelligence layer. Dataverse is the backbone.</p>
+  </div>
+  <div class="arch-grid">
+    <div class="arch-card">
+      <div class="arch-icon" style="background: rgba(6,182,212,0.12); color: var(--cyan-light);">📋</div>
+      <div class="arch-card-title">SharePoint</div>
+      <div class="arch-card-desc">The monitored source. Lists and libraries fire Power Automate triggers when items are created, modified, or deleted.</div>
+      <span class="arch-card-tag" style="background: rgba(6,182,212,0.1); color: var(--cyan-light);">Data source</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon" style="background: rgba(124,58,237,0.12); color: var(--purple-light);">⚡</div>
+      <div class="arch-card-title">Power Automate</div>
+      <div class="arch-card-desc">Three flows: change detector + notifier, natural language subscription parser, and daily digest builder.</div>
+      <span class="arch-card-tag" style="background: rgba(124,58,237,0.1); color: var(--purple-light);">Automation</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon" style="background: rgba(124,58,237,0.15); color: #c4b5fd;">🧠</div>
+      <div class="arch-card-title">AI Builder</div>
+      <div class="arch-card-desc">GPT prompt actions handle three jobs: summarize changes in plain English, score significance, and parse natural language subscriptions.</div>
+      <span class="arch-card-tag" style="background: rgba(124,58,237,0.15); color: #c4b5fd);">Intelligence</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon" style="background: rgba(245,158,11,0.12); color: var(--amber);">🗄️</div>
+      <div class="arch-card-title">Dataverse</div>
+      <div class="arch-card-desc">Two tables: SmartAlerts_Subscriptions (what users want to watch) and SmartAlerts_Log (every change evaluated, with AI output).</div>
+      <span class="arch-card-tag" style="background: rgba(245,158,11,0.1); color: var(--amber);">Storage</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon" style="background: rgba(16,185,129,0.12); color: var(--green);">📱</div>
+      <div class="arch-card-title">Power Apps</div>
+      <div class="arch-card-desc">Canvas app with five screens: subscription management, new subscription wizard (AI-powered), notification history, and admin view.</div>
+      <span class="arch-card-tag" style="background: rgba(16,185,129,0.1); color: var(--green);">User interface</span>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon" style="background: rgba(239,68,68,0.1); color: #fca5a5;">🔔</div>
+      <div class="arch-card-title">Teams + Email</div>
+      <div class="arch-card-desc">Notifications delivered as rich adaptive cards in Teams channels or formatted email via Outlook connector — user's choice per subscription.</div>
+      <span class="arch-card-tag" style="background: rgba(239,68,68,0.08); color: #fca5a5;">Delivery</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="section-divider">
+
+<!-- FEATURES -->
+<div id="features" style="background: rgba(255,255,255,0.01);">
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">03 / Features</div>
+    <h2 class="section-title">What makes it different</h2>
+    <p class="section-desc">The AI layer is the core differentiator. Everything else is infrastructure.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-num">F-01</div>
+      <div class="feature-title">Natural language subscriptions</div>
+      <div class="feature-desc">Users describe what they want to be alerted on in plain English. AI Builder parses the description into structured filter conditions — no field configuration required. "Alert me when a contract over $50K is submitted for review" just works.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">F-02</div>
+      <div class="feature-title">AI significance scoring</div>
+      <div class="feature-desc">Every change is scored 0–100 for significance against the user's criteria. Users set their own threshold. Low-signal noise is suppressed, logged, and available to review — but it doesn't hit their inbox.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">F-03</div>
+      <div class="feature-title">Plain-English change summaries</div>
+      <div class="feature-desc">Instead of a raw field-change dump, notifications include an AI-written summary of what actually changed and why it matters. Written for the business user, not the system admin.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">F-04</div>
+      <div class="feature-title">Teams adaptive card notifications</div>
+      <div class="feature-desc">Structured cards in Teams channels with the AI summary, change metadata, significance score, and direct action buttons — view item and manage alerts — no inbox required.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">F-05</div>
+      <div class="feature-title">Daily digest mode</div>
+      <div class="feature-desc">Users who prefer a single daily summary instead of immediate notifications get one AI-composed digest covering all changes from the past 24 hours, grouped by list and priority.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">F-06</div>
+      <div class="feature-title">Full admin visibility</div>
+      <div class="feature-desc">Admin screen shows all subscriptions across the organization, notification volumes, and per-list activity. Admins can deactivate any subscription and export a governance report without touching SharePoint settings.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<hr class="section-divider">
+
+<!-- PROGRESS TRACKER -->
+<div id="progress">
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">04 / Progress</div>
+    <h2 class="section-title">Build status</h2>
+    <p class="section-desc">Active development. Architecture, data model, PA flows, and AI prompts are complete. Canvas app and production hardening are in progress.</p>
+  </div>
+  <div class="progress-wrapper">
+    <div class="progress-header">
+      <div class="progress-header-title">Smart Alerts v1.0</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width: 58%"></div></div>
+        <span class="progress-pct">58% complete</span>
+      </div>
+    </div>
+    <ul class="progress-list">
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>Solution architecture</strong> — Components, data flow, and deployment pattern defined</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>Dataverse data model</strong> — SmartAlerts_Subscriptions and SmartAlerts_Log tables with full column schema</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>AI prompts (×3)</strong> — Change summarizer + significance scorer, NL subscription parser, daily digest summarizer</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>Flow 1 — Change detector &amp; notifier</strong> — SharePoint trigger → subscription match → AI evaluation → Teams/email dispatch</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>Flow 2 — NL subscription parser</strong> — Power Apps-triggered flow, SP field schema fetch, AI parse, structured output</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>Flow 3 — Daily digest</strong> — Scheduled flow, per-user batching, AI summarization, single notification output</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check done">✓</div>
+        <div class="pi-text"><strong>Teams adaptive card template</strong> — Adaptive card 1.5 schema with variable mapping for Power Automate</div>
+        <span class="pi-status done">Complete</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check inprogress">◌</div>
+        <div class="pi-text"><strong>Power Apps canvas app</strong> — 5 screens: My Subscriptions, New Subscription wizard, Detail/Edit, History, Admin</div>
+        <span class="pi-status inprogress">In Progress</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check planned">·</div>
+        <div class="pi-text"><strong>Testing &amp; validation</strong> — End-to-end testing against live SharePoint lists, AI prompt tuning</div>
+        <span class="pi-status planned">Planned</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check planned">·</div>
+        <div class="pi-text"><strong>Teams tab integration</strong> — Publish canvas app as a Teams personal tab and channel tab</div>
+        <span class="pi-status planned">Planned</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check planned">·</div>
+        <div class="pi-text"><strong>Production deployment guide</strong> — Step-by-step setup, licensing requirements, environment config</div>
+        <span class="pi-status planned">Planned</span>
+      </li>
+      <li class="progress-item">
+        <div class="pi-check planned">·</div>
+        <div class="pi-text"><strong>GitHub repo — solution export</strong> — Managed solution export, sample data, import instructions</div>
+        <span class="pi-status planned">Planned</span>
+      </li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<hr class="section-divider">
+
+<!-- AI PROMPTS PREVIEW -->
+<div style="background: rgba(255,255,255,0.01);">
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">05 / AI Prompts</div>
+    <h2 class="section-title">The intelligence layer</h2>
+    <p class="section-desc">Three GPT prompt actions in AI Builder handle all AI processing. All prompts return structured JSON for reliable parsing in Power Automate.</p>
+  </div>
+  <div class="prompt-preview">
+    <div class="prompt-tab-bar">
+      <button class="ptab active" onclick="showPrompt('p1', this)">Change summarizer</button>
+      <button class="ptab" onclick="showPrompt('p2', this)">NL subscription parser</button>
+      <button class="ptab" onclick="showPrompt('p3', this)">Daily digest</button>
+    </div>
+    <div class="prompt-body active" id="p1"><span class="kw-system">SYSTEM:</span>
+You are a SharePoint change notification assistant. Your job is to
+summarize what changed on a SharePoint item and evaluate whether
+the change is significant enough to notify a user, based on their
+subscription criteria.
+
+Always respond with valid JSON only. No preamble, no markdown.
+
+<span class="kw-system">USER:</span>
+Change type:    <span class="kw-var">@{variables('ChangeType')}</span>
+Item title:     <span class="kw-var">@{triggerBody()?['d/Title']}</span>
+Changed by:     <span class="kw-var">@{triggerBody()?['d/Editor/Name']}</span>
+List name:      <span class="kw-var">@{variables('ListName')}</span>
+Fields changed: <span class="kw-var">@{variables('ChangedFieldsSummary')}</span>
+
+User subscription: "<span class="kw-var">@{items('Apply_to_each')?['nl_description']}</span>"
+Parsed criteria:   <span class="kw-var">@{items('Apply_to_each')?['parsed_conditions']}</span>
+
+Respond with:
+<span class="kw-key">{
+  "ai_summary": "2-3 sentences, plain English, what changed and why it matters",
+  "significance_score": 0-100,
+  "significance_reason": "brief explanation"
+}</span></div>
+    <div class="prompt-body" id="p2"><span class="kw-system">SYSTEM:</span>
+You are a Power Platform configuration assistant. Convert a user's
+plain-English SharePoint alert description into structured filter
+conditions. Always respond with valid JSON only.
+
+<span class="kw-system">USER:</span>
+User's description: "<span class="kw-var">@{triggerBody()?['nl_description']}</span>"
+
+Available list fields:
+<span class="kw-var">@{variables('FieldSchemaString')}</span>
+
+Respond with:
+<span class="kw-key">{
+  "trigger_events": ["created", "modified", "deleted"],
+  "conditions": [
+    {
+      "field": "InternalFieldName",
+      "operator": "equals | contains | greater_than | less_than | not_equals",
+      "value": "comparison value"
+    }
+  ],
+  "plain_english_summary": "One sentence — what this alert watches for",
+  "confidence": 0-100
+}</span></div>
+    <div class="prompt-body" id="p3"><span class="kw-system">SYSTEM:</span>
+You are a SharePoint activity digest assistant. Summarize multiple
+SharePoint change events into a concise daily digest. Write in plain
+English. Use bullet points. Lead with the most important changes.
+
+<span class="kw-system">USER:</span>
+Create a daily digest for <span class="kw-var">@{variables('UserName')}</span>
+covering <span class="kw-var">@{variables('EventCount')}</span> SharePoint changes from the past 24 hours.
+
+Events:
+<span class="kw-var">@{variables('AllChangeSummaries')}</span>
+
+Write a digest that:
+— Opens with a one-sentence overview
+— Lists each significant change as a bullet
+— Groups by list name if 3+ changes from the same list
+— Ends with a count of suppressed low-significance events
+— Stays under 300 words</div>
+  </div>
+</div>
+</div>
+
+<hr class="section-divider">
+
+<!-- ABOUT -->
+<div id="about">
+<div class="section">
+  <div class="section-header">
+    <div class="section-number">06 / About</div>
+    <h2 class="section-title">The builder</h2>
+  </div>
+  <div class="about-card">
+    <div class="about-avatar">JG</div>
+    <div>
+      <div class="about-name">Jessica Graf</div>
+      <div class="about-title">Power Platform &amp; M365 Architect · Independent Consultant</div>
+      <div class="about-bio">
+        20+ years in enterprise IT with deep roots in the Microsoft ecosystem — M365, SharePoint, Power Platform, Azure/Entra ID, and federal compliance environments including FedRAMP, FISMA, and HIPAA. I build things that solve real problems for real users. Smart Alerts came out of a direct business need: SharePoint's native alerts are being phased out, and organizations need a replacement that's actually better. This is that replacement.
+      </div>
+      <div class="about-links">
+        <a href="https://github.com/jessica-graf" class="about-link">GitHub</a>
+        <a href="https://www.linkedin.com/in/jessica-graf" class="about-link">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer>
+  <div class="footer-left">SMART ALERTS</div>
+  <div class="footer-right">Work in progress · Jessica Graf · Power Platform</div>
+</footer>
+
+<script>
+function showPrompt(id, btn) {
+  document.querySelectorAll('.prompt-body').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
