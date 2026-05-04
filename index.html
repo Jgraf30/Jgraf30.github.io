@@ -564,135 +564,100 @@
       animation: avSlideIn 1.4s cubic-bezier(0.25,0.46,0.45,0.94) forwards;
       animation-delay: 0.5s;
     }
-    @keyframes avSlideIn {
-      from { transform: translateX(760px); }
-      to   { transform: translateX(0); }
-    }
+    @keyframes avSlideIn { from{transform:translateX(760px)} to{transform:translateX(0)} }
     .av-scene.arrived { transform: translateX(0); animation: none; }
+    .av-scene.arrived .av-video-wrap { animation: avBreathe 4s ease-in-out infinite; }
+    @keyframes avBreathe { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-4px)} }
 
-    /* Subtle idle breath after arrival */
-    .av-scene.arrived .av-video-wrap {
-      animation: avBreathe 4s ease-in-out infinite;
-    }
-    @keyframes avBreathe {
-      0%,100%{ transform: translateY(0); }
-      50%    { transform: translateY(-4px); }
-    }
-
-    /* Q&A Panel */
     .av-qa {
-      width: 295px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-bottom: none;
+      width: 305px; background: var(--surface);
+      border: 1px solid var(--border); border-bottom: none;
       display: flex; flex-direction: column;
       box-shadow: -4px 0 24px rgba(0,0,0,0.4);
     }
     .av-qa-top {
-      padding: 0.6rem 0.9rem;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.58rem 0.9rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0;
     }
     .av-qa-dot {
       width: 5px; height: 5px; border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 6px var(--accent);
-      animation: pulse 2s infinite;
+      background: var(--accent); box-shadow: 0 0 6px var(--accent);
+      animation: pulse 2s infinite; flex-shrink: 0;
     }
     .av-qa-label {
-      font-family: var(--font-mono); font-size: 0.56rem;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--accent);
+      font-family: var(--font-mono); font-size: 0.54rem;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
     }
-    .av-chips {
-      display: flex; flex-wrap: wrap; gap: 0.28rem;
-      padding: 0.5rem 0.9rem;
-      border-bottom: 1px solid var(--border);
+
+    .av-cats {
+      display: flex; border-bottom: 1px solid var(--border);
+      flex-shrink: 0; overflow-x: auto; scrollbar-width: none;
+    }
+    .av-cats::-webkit-scrollbar { display: none; }
+    .av-cat {
+      background: transparent; border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--muted); font-family: var(--font-mono);
+      font-size: 0.54rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.42rem 0.7rem; cursor: pointer; white-space: nowrap;
+      transition: all 0.18s; flex-shrink: 0;
+    }
+    .av-cat:hover { color: var(--text); }
+    .av-cat.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .av-cat-panel { display: none; }
+    .av-cat-panel.active {
+      display: flex; flex-wrap: wrap; gap: 0.26rem;
+      padding: 0.48rem 0.9rem; border-bottom: 1px solid var(--border);
+      flex-shrink: 0; max-height: 110px; overflow-y: auto;
+      scrollbar-width: thin; scrollbar-color: var(--border) transparent;
     }
     .av-chip {
-      background: transparent;
-      border: 1px solid var(--border); border-radius: 2px;
+      background: transparent; border: 1px solid var(--border); border-radius: 2px;
       color: var(--muted); font-family: var(--font-mono);
-      font-size: 0.55rem; padding: 0.18rem 0.48rem;
-      cursor: pointer; transition: all 0.18s;
+      font-size: 0.54rem; padding: 0.16rem 0.45rem;
+      cursor: pointer; transition: all 0.18s; text-align: left;
     }
     .av-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .av-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(192,132,252,0.07); }
+
     .av-log {
-      flex: 1; overflow-y: auto; max-height: 215px;
+      flex: 1; overflow-y: auto; max-height: 270px;
       padding: 0.65rem 0.9rem;
       display: flex; flex-direction: column; gap: 0.55rem;
       scrollbar-width: thin; scrollbar-color: var(--border) transparent;
     }
     .avmu {
       align-self: flex-end;
-      background: rgba(192,132,252,0.07);
-      border: 1px solid rgba(192,132,252,0.16);
-      padding: 0.38rem 0.6rem; max-width: 85%;
-      font-size: 0.7rem; color: var(--text); line-height: 1.5;
+      background: rgba(192,132,252,0.07); border: 1px solid rgba(192,132,252,0.16);
+      padding: 0.36rem 0.58rem; max-width: 92%;
+      font-size: 0.69rem; color: var(--text); line-height: 1.5;
     }
-    .avmj { align-self: flex-start; max-width: 92%; }
+    .avmj { align-self: flex-start; max-width: 98%; }
     .avmj .avs {
-      font-size: 0.52rem; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 0.16rem;
+      font-size: 0.5rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 0.14rem;
     }
     .avmj .avb {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 0.38rem 0.6rem;
-      font-size: 0.7rem; color: var(--muted); line-height: 1.6;
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 0.36rem 0.58rem; font-size: 0.69rem; color: var(--muted); line-height: 1.6;
     }
-    .avdots { display: inline-flex; gap: 3px; align-items: center; }
-    .avdots span { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); animation: avd 1s infinite ease-in-out; }
-    .avdots span:nth-child(2){animation-delay:.15s} .avdots span:nth-child(3){animation-delay:.3s}
-    @keyframes avd { 0%,80%,100%{transform:scale(.5);opacity:.3} 40%{transform:scale(1);opacity:1} }
-    .av-row {
-      display: flex; gap: 0.42rem;
-      padding: 0.55rem 0.9rem;
-      border-top: 1px solid var(--border);
-    }
-    .av-in {
-      flex: 1; background: var(--bg);
-      border: 1px solid var(--border); border-radius: 2px;
-      color: var(--text); font-family: var(--font-mono);
-      font-size: 0.68rem; padding: 0.38rem 0.6rem; outline: none;
-      transition: border-color 0.2s;
-    }
-    .av-in:focus { border-color: var(--accent); }
-    .av-in::placeholder { color: var(--muted); }
-    .av-go {
-      background: var(--accent); border: none; border-radius: 2px;
-      color: #0b0b0f; font-family: var(--font-mono);
-      font-size: 0.6rem; font-weight: 500; letter-spacing: 0.08em;
-      padding: 0.38rem 0.72rem; cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
-    }
-    .av-go:hover { background: #d4a0ff; }
-    .av-go:disabled { opacity: 0.35; cursor: not-allowed; }
 
-    /* Video frame — clean, no holographic */
     .av-video-wrap {
-      display: flex; flex-direction: column; align-items: center;
-      margin-left: 10px;
+      display: flex; flex-direction: column; align-items: center; margin-left: 10px;
     }
     .av-video-frame {
-      border: 1px solid var(--border);
-      border-bottom: none;
-      overflow: hidden;
-      background: #000;
+      border: 1px solid var(--border); border-bottom: none;
+      overflow: hidden; background: #000;
       box-shadow: -2px 0 20px rgba(0,0,0,0.5);
     }
     .av-video-frame video {
-      display: block;
-      width: 200px; height: 250px;
-      object-fit: cover;
-      object-position: center top;
+      display: block; width: 200px; height: 250px;
+      object-fit: cover; object-position: center top;
     }
     .av-id-tag {
-      width: 200px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-top: 1px solid var(--border);
-      padding: 6px 12px 8px;
+      width: 200px; background: var(--surface);
+      border: 1px solid var(--border); padding: 6px 12px 8px;
     }
     .av-id-name {
       font-family: var(--font-display); font-size: 0.8rem; font-weight: 700;
@@ -700,10 +665,8 @@
     }
     .av-id-role {
       font-family: var(--font-mono); font-size: 0.52rem;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--accent);
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent);
     }
-
     @media(max-width:980px){ .av-scene{ display:none!important; } }
 
   </style>
@@ -712,32 +675,75 @@
 
   <!-- JESSICA AVATAR SCENE -->
   <div class="av-scene" id="avScene">
-
-    <!-- Q&A Panel -->
     <div class="av-qa">
       <div class="av-qa-top">
         <div class="av-qa-dot"></div>
-        <span class="av-qa-label">jessica.graf // live</span>
+        <span class="av-qa-label">jessica.graf // ask me anything</span>
       </div>
-      <div class="av-chips">
-        <button class="av-chip" onclick="avA('What makes you different from other architects?')">What makes you different?</button>
-        <button class="av-chip" onclick="avA('Tell me about your federal government experience')">Federal experience?</button>
-        <button class="av-chip" onclick="avA('Tell me about Sirius and Kumo')">Sirius &amp; Kumo?</button>
-        <button class="av-chip" onclick="avA('What are you building on GitHub right now?')">GitHub projects?</button>
-        <button class="av-chip" onclick="avA('Why the purple hair?')">The hair?</button>
-        <button class="av-chip" onclick="avA('What kind of roles are you open to?')">Open to roles?</button>
+      <div class="av-cats">
+        <button class="av-cat active" onclick="avCat(this,'about_me')">About Me</button>
+        <button class="av-cat " onclick="avCat(this,'m365')">M365</button>
+        <button class="av-cat " onclick="avCat(this,'leadership')">Leadership</button>
+        <button class="av-cat " onclick="avCat(this,'technical')">Technical</button>
+        <button class="av-cat " onclick="avCat(this,'experience')">Experience</button>
+        <button class="av-cat " onclick="avCat(this,'github')">GitHub</button>
       </div>
-      <div class="av-log" id="avLog"></div>
-      <div class="av-row">
-        <input class="av-in" id="avIn" type="text" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')avS()"/>
-        <button class="av-go" id="avBtn" onclick="avS()">Send</button>
+      <div class="av-cat-panel" id="panel_about_me">
+        <button class="av-chip" onclick="avAsk(this)">What makes you different?</button>
+        <button class="av-chip" onclick="avAsk(this)">What&#39;s your background?</button>
+        <button class="av-chip" onclick="avAsk(this)">What are you looking for?</button>
+        <button class="av-chip" onclick="avAsk(this)">Why the purple hair?</button>
+        <button class="av-chip" onclick="avAsk(this)">Tell me about Sirius and Kumo</button>
+      </div>
+      <div class="av-cat-panel" id="panel_m365">
+        <button class="av-chip" onclick="avAsk(this)">What&#39;s your M365 depth?</button>
+        <button class="av-chip" onclick="avAsk(this)">SharePoint experience?</button>
+        <button class="av-chip" onclick="avAsk(this)">Teams and collaboration governance?</button>
+        <button class="av-chip" onclick="avAsk(this)">Microsoft Purview?</button>
+        <button class="av-chip" onclick="avAsk(this)">Entra ID and identity?</button>
+        <button class="av-chip" onclick="avAsk(this)">Copilot and AI readiness?</button>
+      </div>
+      <div class="av-cat-panel" id="panel_leadership">
+        <button class="av-chip" onclick="avAsk(this)">Have you led teams?</button>
+        <button class="av-chip" onclick="avAsk(this)">How do you drive adoption?</button>
+        <button class="av-chip" onclick="avAsk(this)">How do you handle stakeholders?</button>
+        <button class="av-chip" onclick="avAsk(this)">What&#39;s your management style?</button>
+        <button class="av-chip" onclick="avAsk(this)">How do you handle conflict?</button>
+        <button class="av-chip" onclick="avAsk(this)">Can you manage up?</button>
+      </div>
+      <div class="av-cat-panel" id="panel_technical">
+        <button class="av-chip" onclick="avAsk(this)">Power Platform depth?</button>
+        <button class="av-chip" onclick="avAsk(this)">Azure experience?</button>
+        <button class="av-chip" onclick="avAsk(this)">What about Python and coding?</button>
+        <button class="av-chip" onclick="avAsk(this)">Compliance frameworks?</button>
+        <button class="av-chip" onclick="avAsk(this)">What certifications do you hold?</button>
+        <button class="av-chip" onclick="avAsk(this)">What are you learning right now?</button>
+      </div>
+      <div class="av-cat-panel" id="panel_experience">
+        <button class="av-chip" onclick="avAsk(this)">Tell me about MERP Systems</button>
+        <button class="av-chip" onclick="avAsk(this)">Tell me about Hanger</button>
+        <button class="av-chip" onclick="avAsk(this)">Tell me about Carollo Engineers</button>
+        <button class="av-chip" onclick="avAsk(this)">Tell me about Dell</button>
+        <button class="av-chip" onclick="avAsk(this)">What&#39;s your education?</button>
+        <button class="av-chip" onclick="avAsk(this)">Why Anthropology?</button>
+      </div>
+      <div class="av-cat-panel" id="panel_github">
+        <button class="av-chip" onclick="avAsk(this)">What&#39;s on your GitHub?</button>
+        <button class="av-chip" onclick="avAsk(this)">Tell me about Smart Alerts</button>
+        <button class="av-chip" onclick="avAsk(this)">Tell me about the RAG project</button>
+        <button class="av-chip" onclick="avAsk(this)">Why build public projects?</button>
+      </div>
+
+      <div class="av-log" id="avLog">
+        <div class="avmj">
+          <div class="avs">jessica.graf</div>
+          <div class="avb">Hi. Pick a category above, then select a question. I give straight answers.</div>
+        </div>
       </div>
     </div>
-
-    <!-- Video -->
     <div class="av-video-wrap">
       <div class="av-video-frame">
-        <video id="avVideo" autoplay muted loop playsinline preload="auto">
+        <video id="avVideo" autoplay muted playsinline preload="auto">
           <source src="Avatar_Video.mp4" type="video/mp4"/>
         </video>
       </div>
@@ -746,7 +752,6 @@
         <div class="av-id-role">Platform Architect // Austin TX</div>
       </div>
     </div>
-
   </div>
 
 
@@ -1164,44 +1169,75 @@
       if (e.animationName === 'avSlideIn')
         document.getElementById('avScene').classList.add('arrived');
     });
-
     document.addEventListener('click', () => {
       const v = document.getElementById('avVideo');
       if (v && v.muted) { v.muted = false; v.volume = 0.7; }
     }, { once: true });
 
-    const SYS = `You are Jessica Graf. Answer in first person, your own voice. Direct, confident, warm, occasionally witty. No corporate speak. 2-4 sentences max unless more is genuinely needed.
-FACTS: 20+ years enterprise IT. Independent Consultant 2025-present. Power Platform & M365 Architect MERP Systems Aug 2023-Aug 2025, CDC and USGS federal tenants Azure Government FedRAMP High FISMA NIST SP 800-53, zero audit findings. Enterprise M365 Modernization Lead Hanger Inc Oct 2021-Jul 2023, HIPAA, 75% claims cycle time reduction. Collaboration Platform Lead Carollo Engineers Jun 2017-Oct 2021, 15-person team, $400K savings, 50% cycle time reduction, 90%+ adoption without mandates. Enterprise Automation Engineer Dell Jun 2012-Dec 2017, 100,000+ users. IT Lead Kellogg 2006-2012. Certs: PL-600, MCSE, MCT, ITIL. BA Anthropology University of Arizona. Austin TX open to relocation. Dogs: Sirius (deaf AND blind, white double merle Australian Shepherd) and Kumo (deaf, white double merle Australian Shepherd), both victims of irresponsible breeding, both deeply loved. Purple and teal ombre hair, intentional, not changing. LinkedIn newsletter Reboot for senior tech professionals in career transition. GitHub projects: Smart Alerts, LLM RAG Starter, Azure REDCap PaaS, M365 Governance as Code, AI Resume Lab. Learning Microsoft Foundry, building Copilot Studio agents. Breaking the glass ceiling, claiming leadership space now.`;
+    // Show first panel
+    document.getElementById('panel_about_me').classList.add('active');
 
-    const avH=[], avLog=document.getElementById('avLog');
-    function addAV(r,t){
-      const d=document.createElement('div');
-      if(r==='u'){d.className='avmu';d.textContent=t;}
-      else{d.className='avmj';d.innerHTML='<div class="avs">jessica.graf</div><div class="avb"></div>';d.querySelector('.avb').textContent=t;}
-      avLog.appendChild(d);avLog.scrollTop=avLog.scrollHeight;
+    function avCat(btn, panelId) {
+      document.querySelectorAll('.av-cat').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.av-cat-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel_' + panelId).classList.add('active');
     }
-    function addDots(){
-      const d=document.createElement('div');d.className='avmj';d.id='avDots';
-      d.innerHTML='<div class="avs">jessica.graf</div><div class="avb"><div class="avdots"><span></span><span></span><span></span></div></div>';
-      avLog.appendChild(d);avLog.scrollTop=avLog.scrollHeight;
-    }
-    async function avA(q){document.getElementById('avIn').value=q;avS();}
-    async function avS(){
-      const inp=document.getElementById('avIn'),btn=document.getElementById('avBtn');
-      const q=inp.value.trim();if(!q)return;
-      addAV('u',q);inp.value='';btn.disabled=true;
-      avH.push({role:'user',content:q});addDots();
-      try{
-        const r=await fetch('https://api.anthropic.com/v1/messages',{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:avH})
-        });
-        const d=await r.json();
-        const rep=(d.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-        document.getElementById('avDots')?.remove();
-        addAV('j',rep);avH.push({role:'assistant',content:rep});
-      }catch(e){document.getElementById('avDots')?.remove();addAV('j','Something went sideways. Try again?');}
-      btn.disabled=false;inp.focus();
+
+    const ANSWERS = {
+      'What makes you different?': 'Twenty years and I still get my hands dirty. I\'ve owned federal GovCloud tenants, led 15-person teams, cut cycle times in half, and driven 90% adoption without mandates. The difference is I don\'t just architect — I deliver. And I can explain the why to a CFO and a help desk tech in the same afternoon.',
+      'What\'s your background?': 'I started in infrastructure — building Windows Server environments from the ground up at Kellogg and Dell. Over time I moved into enterprise platforms, cloud architecture, and automation. Now I sit at the intersection of M365, Power Platform, Azure, and AI enablement. Twenty years of depth across the full stack.',
+      'What are you looking for?': 'A senior architect or IT leadership role where I can own the technical direction, not just execute someone else\'s roadmap. I\'ve been doing leadership-level work for years. I\'m ready for the title and the scope to match. Open to relocation and remote. If you\'re building something real, I want to be part of it.',
+      'Why the purple hair?': 'I made a decision at a milestone birthday that I was done shrinking to fit other people\'s idea of what a senior IT leader looks like. The hair is part of that. It\'s intentional, it\'s not changing, and the work still speaks for itself.',
+      'Tell me about Sirius and Kumo': 'Sirius is deaf and blind — a white double merle Australian Shepherd who navigates the world entirely on trust. Kumo is deaf too. Both are the result of irresponsible breeding. They\'re the reason I care about doing things right, not just fast. They also attend all architecture reviews.',
+      'What\'s your M365 depth?': 'I\'ve owned M365 end-to-end — Exchange Online, SharePoint Online, Teams, OneDrive, Entra ID, Purview, and the full Power Platform. Not just administered it. Designed governance frameworks, built from scratch, enforced compliance, and driven adoption across federal agencies and national healthcare organizations.',
+      'SharePoint experience?': 'SharePoint is where I started and I never left. I\'ve built governance frameworks, information architecture standards, site lifecycle management, and migration strategies across enterprise environments. At Carollo I rationalized a sprawling SharePoint environment and built the policies that kept it clean going forward.',
+      'Teams and collaboration governance?': 'I\'ve governed Teams environments in federal GovCloud where every configuration decision had security and compliance implications. External sharing controls, guest access policies, meeting security, channel governance — all of it. In GCCH, the default answer is no and every exception requires documented justification.',
+      'Microsoft Purview?': 'DLP policies, sensitivity labels, retention frameworks, compliance reporting — implemented across CDC and USGS federal tenants and a national HIPAA-regulated healthcare organization. In federal GovCloud, Purview isn\'t optional. I know what auditors actually look for and I build toward that from day one.',
+      'Entra ID and identity?': 'Conditional access policies, MFA enforcement, group lifecycle management, SSO integrations, Privileged Identity Management, SCIM provisioning — I\'ve designed and administered identity governance in environments where access control failures have real consequences. FedRAMP and HIPAA both demand it.',
+      'Copilot and AI readiness?': 'I led Copilot readiness governance for two federal tenants — audited content access, enforced least-privilege across SharePoint and Teams, validated data classification, and ensured AI only reasoned over content within compliant boundaries. In a federal environment, you don\'t enable Copilot until governance is airtight.',
+      'Have you led teams?': 'Yes. At Carollo Engineers I led a cross-functional team of 15 across platform delivery and operations for a globally distributed engineering firm. I set priorities, managed performance, ran 1:1s, developed team members, and held accountability for outcomes. Not just a tech lead — a people leader.',
+      'How do you drive adoption?': 'I\'ve driven 90%+ platform adoption in federal environments without mandates. The approach is always the same: make the governed path easier than the workaround, invest in enablement and training, and treat users as people who want to do their jobs well. Adoption fails when governance is designed for auditors instead of humans.',
+      'How do you handle stakeholders?': 'I\'ve briefed federal agency program managers, healthcare executives, and C-suite leaders throughout my career. I translate technical complexity into business language without dumbing it down. I\'m also comfortable pushing back when a decision has compliance or security implications that aren\'t being weighed properly.',
+      'What\'s your management style?': 'I hire people who are better than me at specific things and then get out of their way. I set clear expectations, hold people accountable, and invest in their growth. I give direct feedback and I expect it back. I don\'t manage through fear and I don\'t micromanage. Results matter more than hours.',
+      'How do you handle conflict?': 'Directly and early. I\'d rather have an uncomfortable conversation now than a project failure later. I focus on the problem, not the person, and I try to understand what\'s driving the conflict before I respond. In regulated environments especially, unresolved conflict is a compliance risk.',
+      'Can you manage up?': 'Yes. I\'ve reported to agency program managers, COOs, and CIOs. I know how to give executive leadership what they need to make decisions without overwhelming them with technical detail. I also know when to escalate a risk even when it\'s not what someone wants to hear.',
+      'Power Platform depth?': 'I hold the PL-600 Power Platform Solution Architect Expert certification — one of the harder Microsoft certs to earn. I\'ve built Power Apps solutions, designed Power Automate workflows that reduced cycle times by 75%, governed Dataverse environments, built custom connectors, and implemented AI Builder and Azure AI integrations in production federal environments.',
+      'Azure experience?': 'Azure Government Cloud for CDC and USGS — FedRAMP High, FISMA, NIST SP 800-53. Entra ID architecture, Conditional Access, Azure AI services, AI Builder, Logic Apps, Azure Functions, and currently building on Microsoft Foundry. I work in the cloud that has the hardest compliance requirements in the country.',
+      'What about Python and coding?': 'I\'m not a software engineer but I\'m not just a clicker either. I\'ve built Python projects on Kaggle — pandas, numpy, scikit-learn, matplotlib. I\'ve written Azure Functions, built REST API integrations, and I have active projects on GitHub including an LLM RAG Starter built in Python and FastAPI. I write code when it\'s the right tool.',
+      'Compliance frameworks?': 'FedRAMP High, FISMA, HIPAA, NIST SP 800-53, NIST SP 800-207 Zero Trust. I\'ve implemented controls, collected audit evidence, and maintained zero findings across annual federal assessments. In healthcare I owned HIPAA compliance for a national organization. Compliance isn\'t a project I hand off — it\'s how I build.',
+      'What certifications do you hold?': 'Microsoft Certified: Power Platform Solution Architect Expert (PL-600), Microsoft Certified Solutions Expert (MCSE), Microsoft Certified Trainer (MCT), and ITIL Foundation. I also have deep practical experience in FedRAMP and federal compliance that no certification fully captures.',
+      'What are you learning right now?': 'Microsoft Foundry — building agents and AI-powered workflows in a dev environment. Copilot Studio for enterprise agent deployment. I\'m also deepening my Python skills and exploring how AI governance frameworks need to evolve for agentic AI. The field is moving fast and I\'m keeping pace.',
+      'Tell me about MERP Systems': 'I owned M365 and Power Platform strategy for CDC and USGS federal tenants in Azure Government from 2023 to 2025. GovCloud, FedRAMP High, zero audit findings. I was the primary technical lead for both agencies simultaneously — platform governance, identity architecture, Copilot readiness, and RFP response work for federal engagements.',
+      'Tell me about Hanger': 'Enterprise M365 Modernization Lead for a national healthcare organization from 2021 to 2023. HIPAA-regulated, distributed clinical footprint. I built Power Automate integrations that cut claims processing cycle time by 75%. Owned the data governance program, vendor relationships, and compliance documentation end to end.',
+      'Tell me about Carollo Engineers': 'Collaboration Platform Lead from 2017 to 2021. Led a 15-person cross-functional team delivering IT platform solutions across a globally distributed engineering firm. Built the M365 governance framework from scratch, reduced delivery cycle time by 50%, and delivered $400K in documented annual savings. Full team leadership — not just technical.',
+      'Tell me about Dell': 'Enterprise Automation Engineer from 2012 to 2017. Third-level platform support and automation in a large-scale global environment — SharePoint, Exchange, identity platforms at 100,000+ user scale. Built Windows Server environments from the ground up, owned patching and compliance baselines, served as technical escalation lead.',
+      'What\'s your education?': 'Bachelor\'s degree in Anthropology from the University of Arizona. It taught me how to observe systems, understand human behavior, and think structurally — skills that turn out to be surprisingly useful when you\'re trying to figure out why nobody is using the platform you just built.',
+      'Why Anthropology?': 'Because I was curious about people before I was curious about technology. Understanding how people behave, what motivates them, and how systems shape culture turned out to be the most useful thing I could have studied for a career in enterprise IT. Adoption is a human problem, not a technical one.',
+      'What\'s on your GitHub?': 'Smart Alerts replaces SharePoint\'s broken alert system using Power Platform and AI Builder. LLM RAG Starter is a Python and FastAPI retrieval-augmented generation template. Azure REDCap PaaS deploys research data infrastructure via Terraform and ARM templates. M365 Governance as Code automates tenant governance. AI Resume Lab uses Python and NLP for resume analysis.',
+      'Tell me about Smart Alerts': 'SharePoint\'s native alerts are unreliable and limited. Smart Alerts replaces them with a Power Automate and AI Builder solution that delivers intelligent, configurable notifications with context — not just a link to a changed document. Built for enterprise environments where people actually depend on knowing what changed and why.',
+      'Tell me about the RAG project': 'LLM RAG Starter is a Python and FastAPI template for building retrieval-augmented generation applications. It\'s designed for developers who need a clean starting point for grounding LLM responses in their own data without reinventing the architecture every time. Available on GitHub at jgraf30.',
+      'Why build public projects?': 'Because talk is cheap. I\'d rather show you working code than describe it. The projects on my GitHub are real — built to solve real problems, documented properly, and maintained. They also keep me sharp on the engineering side so I\'m not just making governance decisions, I understand what I\'m governing.',
+    };
+
+    function avAsk(btn) {
+      document.querySelectorAll('.av-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const q = btn.textContent;
+      const a = ANSWERS[q] || 'Reach out directly and I\'ll give you a real answer.';
+      const log = document.getElementById('avLog');
+      const dq = document.createElement('div');
+      dq.className = 'avmu'; dq.textContent = q;
+      log.appendChild(dq);
+      setTimeout(() => {
+        const da = document.createElement('div');
+        da.className = 'avmj';
+        da.innerHTML = '<div class="avs">jessica.graf</div><div class="avb"></div>';
+        da.querySelector('.avb').textContent = a;
+        log.appendChild(da);
+        log.scrollTop = log.scrollHeight;
+      }, 280);
+      log.scrollTop = log.scrollHeight;
     }
 
   </script>
